@@ -1,11 +1,9 @@
-from itertools import count
 import streamlit as st
 import requests, json
 from bs4 import BeautifulSoup
 
 from pandas import DataFrame
 from numpy import std, median, NaN
-from matplotlib import pyplot as plt
 #import code.crawler
 
 def combine_search_url(search, place=None):
