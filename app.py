@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 
 from pandas import DataFrame
 from numpy import std, median, NaN
+import plotly.express as px
 #import code.crawler
 
 def combine_search_url(search, place=None):
@@ -139,11 +140,16 @@ if st.button('Search ebay-kleinanzeigen'):
         for a in pages:
             pagination.append(ebay_url+str(a["href"]))
     st.write('The crawler found {} pages'.format(len(pagination)+1))
+    my_bar = st.progress(0)
+    percent_complete = 100 // len(pagination)
+    total_progress = 100 % len(pagination)
     
     for page in pagination:
+        total_progress += percent_complete
+        my_bar.progress(total_progress)
         response_page = get_ebay_page(page)
-        if response.ok:
-            st.write('Search running for {}...'.format(page))
+        #if response.ok:
+        #    st.write('Search running for {}...'.format(page))
         soup_temp = BeautifulSoup(response_page.text, "html.parser")
         #print(soup_temp)
         titles_temp, urls_temp, images_temp, places_temp, prices_temp, shipping_temp = extract_search_results(soup_temp)
@@ -166,10 +172,20 @@ if st.button('Search ebay-kleinanzeigen'):
 
     df['Price_int'] = df['Price'].replace(replace_dic, regex=True).astype('Int64')
 
-    st.write('Among {} prices the lowest price is {}, the highest price is {}.'.format(len(df), df.Price_int.min(), df.Price_int.max()))
-    st.write('Average price for the search is {:.2f} +- {:.2f}'.format(df['Price_int'].mean(), df['Price_int'].std()))
-    st.write('Median price for the search is {}'.format(df['Price_int'].median()))
-    st.write('All results:')
-    st.dataframe(df)
+    fig = px.histogram(
+        df,
+        x="Price_int"
+        )
+
+    tab1, tab2 = st.tabs(["Result statistics", "Distribution of prices"])
+    with tab1:
+        st.write('Among {} prices the lowest price is {}, the highest price is {}.'.format(len(df), df.Price_int.min(), df.Price_int.max()))
+        st.write('Average price for the search is {:.2f} +- {:.2f}'.format(df['Price_int'].mean(), df['Price_int'].std()))
+        st.write('Median price for the search is {}'.format(df['Price_int'].median()))
+        st.write('All results:')
+        st.dataframe(df)
+        
+    with tab2:
+        st.plotly_chart(fig, theme='streamlit', use_container_width=True)
 
 
