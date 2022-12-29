@@ -174,8 +174,12 @@ if st.button('Search ebay-kleinanzeigen'):
 
     fig = px.histogram(
         df,
-        x="Price_int"
+        x="Price_int",
+        labels={'Price_int': 'Prices, €'}
         )
+    fig.update_layout(yaxis_title="Number of articles found") 
+    fig.update_traces(xbins_size = 10)
+    
 
     tab1, tab2 = st.tabs(["Result statistics", "Distribution of prices"])
     with tab1:
